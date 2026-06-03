@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>📖 會考複習</title>
   <style>
-    /* 🌟 v1.06 核心防護：封鎖 iOS 文字選取與藍色高光 */
+    /* 核心防護：封鎖 iOS 文字選取與藍色高光 */
     * { 
       box-sizing: border-box; margin: 0; padding: 0; 
       -webkit-user-select: none !important; user-select: none !important; 
@@ -15,7 +15,7 @@
     html, body { 
       background-color: #fff3f3; 
       width: 100vw; height: 100vh; overflow: hidden; 
-      touch-action: none !important; /* 鎖死原生滾動 */
+      touch-action: none !important; 
     }
 
     body {
@@ -24,13 +24,11 @@
       color: #334155; -webkit-tap-highlight-color: transparent;
     }
 
-    /* 底層漸層布幕 */
     body::before {
       content: ''; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
       background: linear-gradient(135deg, #fff3f3 0%, #f7f3ff 50%, #ffffff 100%); z-index: -10;
     }
     
-    /* 物理引擎容器 */
     .dashboard-container { 
       position: absolute; top: 0; left: 50%; transform: translate3d(-50%, 0, 0);
       width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 24px;
@@ -56,7 +54,7 @@
     .loading-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff4b72, #a259ff, #0072ff); transition: width 0.1s linear; }
     body.active .loading-bar-wrapper { opacity: 0; transform: translate(-50%, 70vh) scale(0.8); pointer-events: none; }
 
-    /* 🌟 v1.06 模塊本體：陰影與幾何完全純化 */
+    /* 模塊本體 */
     .apple-module {
       position: relative; z-index: 5;
       background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -83,20 +81,20 @@
     
     .task-list { display: flex; flex-direction: column; gap: 12px; }
     .task-item { background: rgba(255, 255, 255, 0.8); border: 1px solid #f1f5f9; border-radius: 16px; padding: 16px; display: flex; justify-content: space-between; align-items: center; transition: opacity 0.35s ease, background 0.35s ease; }
-    .task-info { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; color: #475569; }
+    .task-info { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; color: #475569; pointer-events: none;}
     .task-item.overdue { background: rgba(254, 230, 230, 0.85); border: 1px solid rgba(254, 205, 205, 0.6); }
     .tag-gradient { color: white; padding: 5px 10px; border-radius: 9px; font-size: 12px; font-weight: 800; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04); text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
     .tag-國文 { background: linear-gradient(135deg, #ff4b72, #ff758c); } .tag-英文 { background: linear-gradient(135deg, #0072ff, #00c6ff); } .tag-數學 { background: linear-gradient(135deg, #a259ff, #6366f1); } .tag-自然 { background: linear-gradient(135deg, #059669, #34d399); } .tag-社會 { background: linear-gradient(135deg, #eab308, #ff7e5f); }
-    .check-circle { width: 22px; height: 22px; border-radius: 8px; border: 2px solid #e2e8f0; display: flex; justify-content: center; align-items: center; transition: all 0.3s; font-size: 12px; font-weight: bold; color: #cbd5e1; }
+    .check-circle { width: 22px; height: 22px; border-radius: 8px; border: 2px solid #e2e8f0; display: flex; justify-content: center; align-items: center; transition: all 0.3s; font-size: 12px; font-weight: bold; color: #cbd5e1; pointer-events: none;}
     .task-item.checked { opacity: 0.35; filter: grayscale(60%); background: rgba(248, 250, 252, 0.5) !important; border: 1px solid #f1f5f9 !important; }
     .task-item.checked .check-circle { background: #64748b; border: none; color: white; }
     
     .subject-card { background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(255, 255, 255, 0.9); border-radius: 20px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
     .subject-header { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; transition: background 0.15s; }
-    .subject-title { font-weight: 800; font-size: 16px; color: #334155; white-space: nowrap; min-width: 40px; }
-    .header-bar-container { flex-grow: 1; margin: 0 16px; height: 6px; background: rgba(226, 232, 240, 0.5); border-radius: 10px; overflow: hidden; }
+    .subject-title { font-weight: 800; font-size: 16px; color: #334155; white-space: nowrap; min-width: 40px; pointer-events: none; }
+    .header-bar-container { flex-grow: 1; margin: 0 16px; height: 6px; background: rgba(226, 232, 240, 0.5); border-radius: 10px; overflow: hidden; pointer-events: none;}
     .header-bar-fill { height: 100%; border-radius: 10px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
-    .subject-right { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
+    .subject-right { display: flex; align-items: center; gap: 12px; white-space: nowrap; pointer-events: none;}
     .subject-progress { font-weight: 800; font-size: 16px; display: inline-block; }
     .arrow-icon { width: 10px; height: 10px; border-right: 2px solid #cbd5e1; border-bottom: 2px solid #cbd5e1; transform: rotate(45deg); transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s; }
     .subject-card.open .arrow-icon { transform: rotate(-135deg); }
@@ -115,7 +113,7 @@
     
     .countdown-text { font-size: clamp(14px, 4.8vw, 21px); text-align: center; font-variant-numeric: tabular-nums; font-weight: 900; white-space: nowrap; pointer-events: none; }
 
-    /* 🌟 v1.06 簡潔版簽名 */
+    /* 版本氣泡 */
     .version-pill {
       margin: 8px auto 20px auto; padding: 10px 24px; border-radius: 50px;
       background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -127,7 +125,8 @@
     @keyframes versionPop { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
-<body class="loading">
+
+<body class="loading" oncontextmenu="return false;" onselectstart="return false;">
 
   <div class="dashboard-container" id="dashboard">
     <div class="ios-clock-header">
@@ -153,11 +152,15 @@
     </div>
     
     <div class="version-pill" data-idx="4">
-      <span class="rainbow-text">✨ v1.06 by zhaxia</span>
+      <span class="rainbow-text">✨ v1.07 by zhaxia</span>
     </div>
   </div>
 
   <script>
+    // 🌟 v1.07 終極防護：徹底殺死 iOS 長按放大鏡與反白
+    window.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+    window.addEventListener('selectstart', function(e) { e.preventDefault(); });
+
     // 1. 時鐘
     function updateIosClock() {
       const now = new Date();
@@ -296,7 +299,7 @@
     }
     launchDashboardSequence();
 
-    // 🌟🌟🌟 7. v1.06 全指標物理與「柔順水波回彈」引擎 🌟🌟🌟
+    // 🌟 7. v1.07 物理引擎
     const dashboard = document.getElementById('dashboard');
     let currentY = 0, maxScroll = 0, velocity = 0;
     let isDragging = false, lastTouchY = 0, lastTouchTime = 0;
@@ -305,7 +308,6 @@
 
     function physicsLoop() {
       if (!isDragging) {
-        // 🌟 v1.06 溫柔水波阻尼回彈修正：降力、升阻尼，使其優雅歸位
         if (currentY < 0) {
           velocity = (velocity + (0 - currentY) * 0.06) * 0.82; 
         } else if (currentY > maxScroll) {
@@ -345,7 +347,6 @@
     }
     requestAnimationFrame(physicsLoop);
 
-    // 🌟 v1.06 升級：全域改用 Pointer Events，同時相容滑鼠與手機觸控！
     document.querySelectorAll('.interactable').forEach(mod => {
       mod.addEventListener('pointerdown', (e) => {
         if (Math.abs(velocity) < 4) mod.classList.add('is-pressed');
@@ -355,7 +356,7 @@
     });
 
     window.addEventListener('pointerdown', (e) => {
-      if (e.button !== 0 && e.pointerType === 'mouse') return; // 僅限滑鼠左鍵與觸控
+      if (e.button !== 0 && e.pointerType === 'mouse') return;
       isDragging = true; velocity = 0;
       lastTouchY = e.clientY; lastTouchTime = Date.now();
       updateMaxScroll();
