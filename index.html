@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>📖 會考複習</title>
   <style>
-    /* 核心防護：封鎖 iOS 文字選取與藍色高光 */
+    /* 核心防護：封鎖文字選取與原生干擾 */
     * { 
       box-sizing: border-box; margin: 0; padding: 0; 
       -webkit-user-select: none !important; user-select: none !important; 
@@ -64,12 +64,11 @@
       transition: box-shadow 0.25s cubic-bezier(0.25, 1, 0.5, 1);
     }
     .apple-module.is-pressed { box-shadow: 0 4px 12px rgba(162, 89, 255, 0.02) !important; }
-    .dragging .apple-module, .dragging .version-pill { transition: none !important; }
-
+    
     body.active .apple-module { animation: moduleSlideUp 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
     body.active .apple-module:nth-child(3) { animation-delay: 0.1s; }
-    body.active .apple-module:nth-child(4) { animation-delay: 0.25s; }
-    body.active .apple-module:nth-child(5) { animation-delay: 0.4s; }
+    body.active .apple-module:nth-child(4) { animation-delay: 0.2s; }
+    body.active .apple-module:nth-child(5) { animation-delay: 0.3s; }
     @keyframes moduleSlideUp { 0% { opacity: 0; transform: translateY(50px); } 100% { opacity: 1; transform: translateY(0); } }
 
     /* 內部排版 */
@@ -99,9 +98,14 @@
     .arrow-icon { width: 10px; height: 10px; border-right: 2px solid #cbd5e1; border-bottom: 2px solid #cbd5e1; transform: rotate(45deg); transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s; }
     .subject-card.open .arrow-icon { transform: rotate(-135deg); }
     
-    .subject-details-wrapper { max-height: 0; overflow: hidden; transition: max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1); will-change: max-height; }
-    .subject-card.open .subject-details-wrapper { max-height: 600px; }
-    .subject-details-inner { background: rgba(248, 250, 252, 0.5); border-top: 1px solid rgba(226, 232, 240, 0.0); transition: border-color 0.3s; }
+    /* 🌟 v1.08 完美絲滑手風琴：重啟 Grid 搭配 0.4s 曲線，不卡頓且完全貼合內容 */
+    .subject-details-wrapper { 
+      display: grid; 
+      grid-template-rows: 0fr; 
+      transition: grid-template-rows 0.4s cubic-bezier(0.25, 1, 0.5, 1); 
+    }
+    .subject-card.open .subject-details-wrapper { grid-template-rows: 1fr; }
+    .subject-details-inner { overflow: hidden; background: rgba(248, 250, 252, 0.5); border-top: 1px solid rgba(226, 232, 240, 0.0); transition: border-color 0.4s; }
     .subject-card.open .subject-details-inner { border-color: rgba(226, 232, 240, 0.6); }
     .volume-item { padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(226, 232, 240, 0.6); }
     .volume-item:last-child { border-bottom: none; }
@@ -152,12 +156,12 @@
     </div>
     
     <div class="version-pill" data-idx="4">
-      <span class="rainbow-text">✨ v1.07 by zhaxia</span>
+      <span class="rainbow-text">✨ v1.08 by zhaxia</span>
     </div>
   </div>
 
   <script>
-    // 🌟 v1.07 終極防護：徹底殺死 iOS 長按放大鏡與反白
+    // 徹底殺死 iOS 長按放大鏡
     window.addEventListener('contextmenu', function(e) { e.preventDefault(); });
     window.addEventListener('selectstart', function(e) { e.preventDefault(); });
 
@@ -264,7 +268,7 @@
         container.appendChild(card);
       });
       setTimeout(() => { document.querySelectorAll('.header-bar-fill').forEach(bar => bar.style.width = bar.getAttribute('data-target-width') + '%'); }, 100);
-      setTimeout(updateMaxScroll, 350);
+      setTimeout(updateMaxScroll, 450); // 等待網格動畫結束再重算滾動高度
     }
 
     function toggleCard(headerElement, subject, event) {
@@ -272,10 +276,10 @@
       const card = headerElement.parentElement; const isOpening = !card.classList.contains('open');
       document.querySelectorAll('.subject-card').forEach(c => { c.classList.remove('open'); c.querySelector('.arrow-icon').style.borderColor = "#cbd5e1"; });
       if (isOpening) { card.classList.add('open'); card.querySelector('.arrow-icon').style.borderColor = {"國文":"#ff4b72", "英文":"#0072ff", "數學":"#a259ff", "自然":"#059669", "社會":"#eab308"}[subject]; }
-      setTimeout(updateMaxScroll, 300);
+      setTimeout(updateMaxScroll, 400);
     }
 
-    // 6. 遠端數據讀取
+    // 🌟 v1.08 加載速度優化：砍掉多餘的等待時間，秒進系統！
     async function updateDashboardData() {
       try {
         const progressRes = await fetch('https://tutor-dashboard-backend-9tc6.onrender.com/api/progress');
@@ -288,21 +292,35 @@
     }
 
     async function launchDashboardSequence() {
-      const minAnimationWindow = new Promise(resolve => setTimeout(resolve, 1500));
+      // 大幅降低強制等待時間，從 1.5 秒降到 0.3 秒
+      const minAnimationWindow = new Promise(resolve => setTimeout(resolve, 300));
       let simulatedProgress = 0; const loadingFill = document.getElementById('loading-fill');
       const progressTracker = setInterval(() => {
-        if (simulatedProgress < 95) { simulatedProgress += (100 - simulatedProgress) * 0.04; if (loadingFill) loadingFill.style.width = simulatedProgress + '%'; }
-      }, 35);
+        if (simulatedProgress < 95) { simulatedProgress += (100 - simulatedProgress) * 0.15; if (loadingFill) loadingFill.style.width = simulatedProgress + '%'; }
+      }, 20); // 加速進度條填充
+      
       await Promise.all([minAnimationWindow, updateDashboardData()]);
       clearInterval(progressTracker); if (loadingFill) loadingFill.style.width = '100%';
-      setTimeout(() => { document.body.classList.remove('loading'); document.body.classList.add('active'); updateMaxScroll(); }, 250);
+      setTimeout(() => { document.body.classList.remove('loading'); document.body.classList.add('active'); updateMaxScroll(); }, 150);
     }
     launchDashboardSequence();
 
-    // 🌟 7. v1.07 物理引擎
+    // 🌟🌟🌟 v1.08 效能解放：DOM Caching 緩存技術，告別 120fps 卡頓 🌟🌟🌟
     const dashboard = document.getElementById('dashboard');
     let currentY = 0, maxScroll = 0, velocity = 0;
     let isDragging = false, lastTouchY = 0, lastTouchTime = 0;
+    
+    // 🚀 在全域先把所有模塊找好存起來，物理運算時絕對不重新搜尋 DOM！
+    let cachedModules = [];
+    setTimeout(() => {
+      document.querySelectorAll('.interactable, .version-pill').forEach(mod => {
+        cachedModules.push({
+          el: mod,
+          idx: parseFloat(mod.dataset.idx || 1),
+          currentScale: 1.0
+        });
+      });
+    }, 1000); // 開機 1 秒後抓取
 
     function updateMaxScroll() { maxScroll = Math.max(0, dashboard.offsetHeight - window.innerHeight + 80); }
 
@@ -323,25 +341,22 @@
         }
       }
 
+      // 直接使用 GPU 合成層
       dashboard.style.transform = `translate3d(-50%, ${-currentY}px, 0)`;
 
       let rubberDelta = 0;
       if (currentY < 0) rubberDelta = currentY; 
       else if (currentY > maxScroll) rubberDelta = currentY - maxScroll;
 
-      const modules = document.querySelectorAll('.interactable, .version-pill');
-      modules.forEach(mod => {
-        let idx = parseFloat(mod.dataset.idx || 1);
-        let staggerY = rubberDelta * idx * 0.22; 
+      // 🚀 直接讀取記憶體中的快取 (cachedModules)，效能損耗降至 0
+      for (let i = 0; i < cachedModules.length; i++) {
+        let item = cachedModules[i];
+        let staggerY = rubberDelta * item.idx * 0.22; 
+        let targetScale = item.el.classList.contains('is-pressed') ? 0.96 : 1.0;
         
-        let targetScale = mod.classList.contains('is-pressed') ? 0.96 : 1.0;
-        let currentScale = parseFloat(mod.dataset.currentScale || 1.0);
-        
-        currentScale += (targetScale - currentScale) * 0.18;
-        mod.dataset.currentScale = currentScale;
-        
-        mod.style.transform = `translate3d(0, ${staggerY}px, 0) scale(${currentScale})`;
-      });
+        item.currentScale += (targetScale - item.currentScale) * 0.18;
+        item.el.style.transform = `translate3d(0, ${staggerY}px, 0) scale(${item.currentScale})`;
+      }
 
       requestAnimationFrame(physicsLoop);
     }
