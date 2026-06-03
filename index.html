@@ -5,18 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>📖 會考複習</title>
   <style>
-    /* 🌟 核心防護：徹底封殺 Safari 所有原生干擾與文字反白 */
+    /* 🌟 v1.05 核心防護：全面封鎖 iOS 文字反白與系統選取高光 */
     * { 
       box-sizing: border-box; margin: 0; padding: 0; 
       -webkit-user-select: none !important; user-select: none !important; 
       -webkit-touch-callout: none !important;
     }
     
-    /* 強制關閉原生滾動，由我們的物理大腦全面接管 */
     html, body { 
       background-color: #fff3f3; 
       width: 100vw; height: 100vh; overflow: hidden; 
-      touch-action: none !important; /* 🌟 120fps 的關鍵，拒絕系統干預 */
+      touch-action: none !important; /* 強制關閉原生滾動，全面解放 120fps */
     }
 
     body {
@@ -25,20 +24,20 @@
       color: #334155; -webkit-tap-highlight-color: transparent;
     }
 
-    /* 底層漸層布幕 */
+    /* 底層無縫漸層布幕 */
     body::before {
       content: ''; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
       background: linear-gradient(135deg, #fff3f3 0%, #f7f3ff 50%, #ffffff 100%); z-index: -10;
     }
     
-    /* 物理引擎專用容器：只靠 translate3d 移動 */
+    /* 物理引擎容器 */
     .dashboard-container { 
       position: absolute; top: 0; left: 50%; transform: translate3d(-50%, 0, 0);
       width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 24px;
       padding: 20px 20px 60px 20px; will-change: transform;
     }
     
-    /* ─── 🎬 開機動畫 ─── */
+    /* ─── 🎬 開機加載系統 ─── */
     .ios-clock-header {
       display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; text-align: center;
       position: relative; z-index: 20; margin-top: 36px; margin-bottom: 12px;
@@ -57,25 +56,21 @@
     .loading-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff4b72, #a259ff, #0072ff); transition: width 0.1s linear; }
     body.active .loading-bar-wrapper { opacity: 0; transform: translate(-50%, 70vh) scale(0.8); pointer-events: none; }
 
-    /* 🌟 v1.03：超狂 GPU 渲染與極致按壓神經 */
+    /* 🌟 v1.05 模塊本體：陰影採用柔和過渡，縮放完全交給物理引擎 */
     .apple-module {
       position: relative; z-index: 5;
       background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 28px; padding: 30px;
       box-shadow: 0 10px 30px rgba(162, 89, 255, 0.05), 0 1px 3px rgba(0,0,0,0.02); 
-      cursor: pointer; opacity: 0; 
+      cursor: pointer; opacity: 0; will-change: transform;
       
-      /* 🌟 將張力拉扯拉高到 0.6px，並預設 scale 為 1 */
-      transform: translate3d(0, calc(var(--pull-top, 0) * var(--i-top) * 0.6px - var(--pull-bot, 0) * var(--i-bot) * 0.6px), 0) scale(1);
-      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
-      will-change: transform;
+      /* 陰影過渡採用蘋果標準緩動 */
+      transition: box-shadow 0.25s cubic-bezier(0.25, 1, 0.5, 1);
     }
     
-    /* 🔥 絕對暴力下沉：0.92 深壓感！ */
+    /* 🔥 按壓時陰影同步柔和收緊 */
     .apple-module.is-pressed {
-      transform: translate3d(0, calc(var(--pull-top, 0) * var(--i-top) * 0.6px - var(--pull-bot, 0) * var(--i-bot) * 0.6px), 0) scale(0.92) !important;
-      box-shadow: 0 2px 8px rgba(162, 89, 255, 0.02) !important;
-      transition: transform 0.08s ease-out !important; /* 0秒瞬間壓扁 */
+      box-shadow: 0 4px 12px rgba(162, 89, 255, 0.02) !important;
     }
 
     body.active .apple-module { animation: moduleSlideUp 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
@@ -85,9 +80,9 @@
     @keyframes moduleSlideUp { 0% { opacity: 0; transform: translateY(50px); } 100% { opacity: 1; transform: translateY(0); } }
 
     /* 內部排版 */
-    .module-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; pointer-events: none; }
+    .module-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .module-header { font-size: 13px; font-weight: 700; color: #94a3b8; letter-spacing: 2px; text-transform: uppercase; }
-    .task-badge { font-size: 11px; padding: 4px 10px; font-weight: 700; border-radius: 9999px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: all 0.3s ease; pointer-events: auto; }
+    .task-badge { font-size: 11px; padding: 4px 10px; font-weight: 700; border-radius: 9999px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: all 0.3s ease; }
     .badge-remain { background: #ffe4e6; color: #f43f5e; } .badge-done { background: #d1fae5; color: #065f46; }
     .rainbow-text { background: linear-gradient(135deg, #ff4b72 0%, #a259ff 50%, #4b91ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0px 2px 4px rgba(162, 89, 255, 0.2)); }
     
@@ -103,15 +98,14 @@
     
     .subject-card { background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(255, 255, 255, 0.9); border-radius: 20px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
     .subject-header { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; transition: background 0.15s; }
-    .subject-title { font-weight: 800; font-size: 16px; color: #334155; white-space: nowrap; min-width: 40px; pointer-events: none;}
+    .subject-title { font-weight: 800; font-size: 16px; color: #334155; white-space: nowrap; min-width: 40px; }
     .header-bar-container { flex-grow: 1; margin: 0 16px; height: 6px; background: rgba(226, 232, 240, 0.5); border-radius: 10px; overflow: hidden; }
     .header-bar-fill { height: 100%; border-radius: 10px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
-    .subject-right { display: flex; align-items: center; gap: 12px; white-space: nowrap; pointer-events: none; }
+    .subject-right { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
     .subject-progress { font-weight: 800; font-size: 16px; display: inline-block; }
     .arrow-icon { width: 10px; height: 10px; border-right: 2px solid #cbd5e1; border-bottom: 2px solid #cbd5e1; transform: rotate(45deg); transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s; }
     .subject-card.open .arrow-icon { transform: rotate(-135deg); }
     
-    /* 完美滑順手風琴 */
     .subject-details-wrapper { max-height: 0; overflow: hidden; transition: max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1); will-change: max-height; }
     .subject-card.open .subject-details-wrapper { max-height: 600px; }
     .subject-details-inner { background: rgba(248, 250, 252, 0.5); border-top: 1px solid rgba(226, 232, 240, 0.0); transition: border-color 0.3s; }
@@ -126,14 +120,13 @@
     
     .countdown-text { font-size: clamp(14px, 4.8vw, 21px); text-align: center; font-variant-numeric: tabular-nums; font-weight: 900; white-space: nowrap; pointer-events: none; }
 
-    /* 🌟 v1.03 客製化標籤 */
+    /* 🌟 v1.05 簡潔簽名氣泡 */
     .version-pill {
       margin: 8px auto 20px auto; padding: 10px 24px; border-radius: 50px;
       background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       box-shadow: 0 4px 15px rgba(0,0,0,0.03), 0 1px 3px rgba(0,0,0,0.02); border: 1px solid rgba(255,255,255,0.9);
       font-size: 13px; font-weight: 800; letter-spacing: 0.5px; text-align: center;
-      opacity: 0; transform: translate3d(0, calc(var(--pull-top, 0) * var(--i-top) * 0.6px - var(--pull-bot, 0) * var(--i-bot) * 0.6px), 0);
-      will-change: transform; transition: transform 0.4s cubic-bezier(0.25, 1.2, 0.5, 1);
+      opacity: 0; transform: translateY(20px); will-change: transform;
     }
     body.active .version-pill { animation: versionPop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; animation-delay: 0.5s; }
     @keyframes versionPop { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -149,23 +142,23 @@
 
     <div class="loading-bar-wrapper"><div id="loading-fill" class="loading-bar-fill"></div></div>
 
-    <div class="apple-module interactable" style="--i-top: 4; --i-bot: 0;">
+    <div class="apple-module interactable" data-idx="1">
       <div class="module-top-row"><div class="module-header">⚡ 今日任務</div><span id="task-badge" class="task-badge badge-remain">讀取中...</span></div>
       <div id="task-container" class="task-list"></div>
     </div>
 
-    <div class="apple-module interactable" style="--i-top: 3; --i-bot: 1;">
+    <div class="apple-module interactable" data-idx="2">
       <div class="module-top-row" style="justify-content: center;"><div class="module-header">📊 複習進度</div></div>
       <div id="accordion-container"></div>
     </div>
 
-    <div class="apple-module interactable countdown-wrapper" style="--i-top: 2; --i-bot: 2;" onclick="triggerCountdownVibrate()">
+    <div class="apple-module interactable countdown-wrapper" data-idx="3" onclick="triggerCountdownVibrate()">
       <div class="module-top-row" style="justify-content: center;"><div class="module-header">⏰ 會考倒數計時</div></div>
       <div id="countdown" class="rainbow-text countdown-text">00天 00時 00分 00秒</div>
     </div>
     
-    <div class="version-pill" style="--i-top: 1; --i-bot: 3;">
-      <span class="rainbow-text">✨ v1.03 by zhaxia</span>
+    <div class="version-pill" data-idx="4">
+      <span class="rainbow-text">✨ v1.05 by zhaxia</span>
     </div>
   </div>
 
@@ -218,7 +211,7 @@
       else { badge.innerText = `${remaining} 剩餘`; badge.className = "task-badge badge-remain"; }
     }
 
-    // 4. 遠端同步打勾
+    // 4. 打勾同步
     async function toggleTask(card) {
       if (navigator.vibrate) navigator.vibrate(40);
       const taskId = card.getAttribute('data-id');
@@ -284,7 +277,7 @@
       setTimeout(updateMaxScroll, 300);
     }
 
-    // 6. 遠端數據加載
+    // 6. 遠端數據讀取
     async function updateDashboardData() {
       try {
         const progressRes = await fetch('https://tutor-dashboard-backend-9tc6.onrender.com/api/progress');
@@ -308,54 +301,61 @@
     }
     launchDashboardSequence();
 
-    // 🌟🌟🌟 7. v1.03 全域終極物理引擎 (Virtual Physics Engine) 🌟🌟🌟
-    // 徹底解決系統干擾，保證 120fps 與絕不暴走的數學核心
+    // 🌟🌟🌟 7. v1.05 全域虛擬物理與「LERP 柔性下沉神經」引擎 🌟🌟🌟
     const dashboard = document.getElementById('dashboard');
     let currentY = 0, maxScroll = 0, velocity = 0;
     let isDragging = false, lastTouchY = 0, lastTouchTime = 0;
 
     function updateMaxScroll() { maxScroll = Math.max(0, dashboard.offsetHeight - window.innerHeight + 80); }
 
-    // 物理心跳：每幀無間斷計算 (60-120fps)
+    // 120fps 物理心跳：按壓與滾動全部交給 JS 逐幀渲染
     function physicsLoop() {
       if (!isDragging) {
-        // 胡克定律彈簧：撞到底或頂時強制拉回，數學上絕對無法無限放大
         if (currentY < 0) {
-          velocity = (velocity + (0 - currentY) * 0.15) * 0.75;
+          velocity = (velocity + (0 - currentY) * 0.15) * 0.76;
         } else if (currentY > maxScroll) {
-          velocity = (velocity + (maxScroll - currentY) * 0.15) * 0.75;
+          velocity = (velocity + (maxScroll - currentY) * 0.15) * 0.76;
         } else {
-          velocity *= 0.94; // 一般區域摩擦力
+          velocity *= 0.94;
         }
-        
-        // 微小位移強制歸零，避免發抖
-        if (Math.abs(velocity) > 0.05 || currentY < 0 || currentY > maxScroll) {
-          currentY += velocity;
-        } else {
+        if (Math.abs(velocity) > 0.03 || currentY < 0 || currentY > maxScroll) currentY += velocity;
+        else {
           velocity = 0;
           if (currentY < 0) currentY = 0;
           if (currentY > maxScroll) currentY = maxScroll;
         }
       }
 
-      // 計算極致明顯的藕斷絲連 (超過邊界才拉扯)
-      let pullTop = currentY < 0 ? -currentY : 0;
-      let pullBot = currentY > maxScroll ? currentY - maxScroll : 0;
-
-      // GPU 寫入
       dashboard.style.transform = `translate3d(-50%, ${-currentY}px, 0)`;
-      document.body.style.setProperty('--pull-top', pullTop);
-      document.body.style.setProperty('--pull-bot', pullBot);
+
+      let rubberDelta = 0;
+      if (currentY < 0) rubberDelta = currentY; 
+      else if (currentY > maxScroll) rubberDelta = currentY - maxScroll;
+
+      const modules = document.querySelectorAll('.interactable, .version-pill');
+      modules.forEach(mod => {
+        let idx = parseFloat(mod.dataset.idx || 1);
+        let staggerY = rubberDelta * idx * 0.22; 
+        
+        // 🍎 v1.05 核心重構：全虛擬 LERP 物理按壓神經
+        let targetScale = mod.classList.contains('is-pressed') ? 0.96 : 1.0;
+        let currentScale = parseFloat(mod.dataset.currentScale || 1.0);
+        
+        // 🚀 黃金逼近算式：消除生硬的瞬間跳變，創造極其平滑、溫潤的矽膠下沉感
+        currentScale += (targetScale - currentScale) * 0.18;
+        mod.dataset.currentScale = currentScale;
+        
+        mod.style.transform = `translate3d(0, ${staggerY}px, 0) scale(${currentScale})`;
+      });
 
       requestAnimationFrame(physicsLoop);
     }
     requestAnimationFrame(physicsLoop);
 
-    // 觸控神經：按壓與滑動
+    // 觸控按壓監聽
     document.querySelectorAll('.interactable').forEach(mod => {
-      // 一摸到就瞬間下沉！(只要不是在瘋狂滑動中)
-      mod.addEventListener('touchstart', (e) => {
-        if (Math.abs(velocity) < 2) mod.classList.add('is-pressed');
+      mod.addEventListener('touchstart', () => {
+        if (Math.abs(velocity) < 3) mod.classList.add('is-pressed');
       }, { passive: true });
       mod.addEventListener('touchend', () => mod.classList.remove('is-pressed'));
       mod.addEventListener('touchcancel', () => mod.classList.remove('is-pressed'));
@@ -373,10 +373,8 @@
       let dy = y - lastTouchY;
       const now = Date.now(); const dt = now - lastTouchTime;
 
-      // 只要開始滑，馬上解開所有下沉按壓
       document.querySelectorAll('.is-pressed').forEach(m => m.classList.remove('is-pressed'));
 
-      // 阻尼牆：在邊界外硬拉，阻力暴增，手感更扎實
       if (currentY < 0 && dy > 0) dy *= 0.35;
       else if (currentY > maxScroll && dy < 0) dy *= 0.35;
 
@@ -388,8 +386,7 @@
 
     window.addEventListener('touchend', () => {
       isDragging = false;
-      // 速度限幅：就算手速再快，畫面也不會飛出宇宙
-      velocity = Math.max(-50, Math.min(50, velocity)); 
+      velocity = Math.max(-45, Math.min(45, velocity));
     });
   </script>
 </body>
