@@ -5,75 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>📖 會考複習</title>
   <style>
-    /* 🌟 核心防護：鎖死 HTML 背景，切斷瀏覽器的預設白邊反光 */
-    html {
-      background-color: #fff3f3; 
-      overscroll-behavior-y: none; /* 防止 Chrome 的原生橡皮筋 */
-    }
-
+    /* 🌟 核心防護 */
+    html { background-color: #fff3f3; overscroll-behavior-y: none; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       display: flex; flex-direction: column; align-items: center; padding: 20px 20px 40px 20px;
-      min-height: 100vh; color: #334155;
-      -webkit-tap-highlight-color: transparent; 
-      overscroll-behavior-y: none;
+      min-height: 100vh; color: #334155; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none;
     }
 
-    /* 🌟 終極防穿透結界：把漸層變成一張永遠固定在螢幕最後方的布幕，怎麼拉都不會露白！ */
     body::before {
       content: ''; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: linear-gradient(135deg, #fff3f3 0%, #f7f3ff 50%, #ffffff 100%);
       z-index: -10;
     }
     
-    /* 🌟 張力引擎載體：負責接收平滑的 JS 數值 */
     .dashboard-container { 
-      position: relative; width: 100%; max-width: 500px; 
-      display: flex; flex-direction: column; 
-      gap: calc(24px + var(--rubber-gap, 0px)); 
-      transform: translateY(var(--rubber-y, 0px)); 
-      /* 放開手時的 Q 彈回歸動畫 */
+      position: relative; width: 100%; max-width: 500px; display: flex; flex-direction: column; 
+      gap: calc(24px + var(--rubber-gap, 0px)); transform: translateY(var(--rubber-y, 0px)); 
       transition: gap 0.6s cubic-bezier(0.25, 1.2, 0.5, 1), transform 0.6s cubic-bezier(0.25, 1.2, 0.5, 1);
     }
-    
-    /* 拖曳中拔除過渡，確保手指 0 延遲跟隨，徹底消滅抖動！ */
     .dashboard-container.dragging { transition: none !important; }
     
     /* ─── 🎬 蘋果級開機加載動畫系統 ─── */
     .ios-clock-header {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      width: 100%; user-select: none; text-align: center;
-      position: relative; z-index: 20; opacity: 1; transform: translateY(0);
-      margin-top: 36px; margin-bottom: 12px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; user-select: none; text-align: center;
+      position: relative; z-index: 20; opacity: 1; transform: translateY(0); margin-top: 36px; margin-bottom: 12px;
       transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.8s ease;
     }
     .ios-clock-time { display: flex; align-items: center; justify-content: center; width: 100%; font-size: 60px; font-weight: 700; color: #1e293b; line-height: 1; letter-spacing: 0px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.01)); }
-    .time-part { flex: 1; }
-    .time-hour { text-align: right; }
-    .time-min { text-align: left; }
-    .time-colon { margin: 0 4px; position: relative; top: -3px; }
+    .time-part { flex: 1; } .time-hour { text-align: right; } .time-min { text-align: left; } .time-colon { margin: 0 4px; position: relative; top: -3px; }
     .ios-clock-date { font-size: 14px; font-weight: 600; color: #64748b; letter-spacing: 1px; margin-top: 8px; }
 
-    body.loading .ios-clock-header {
-      transform: translateY(25vh); margin-top: 0; margin-bottom: 0;
-      animation: clockFloatIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    }
+    body.loading .ios-clock-header { transform: translateY(25vh); margin-top: 0; margin-bottom: 0; animation: clockFloatIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
     @keyframes clockFloatIn { from { opacity: 0; transform: translateY(30vh) scale(0.94); } to { opacity: 1; transform: translateY(25vh) scale(1); } }
 
     /* 進度條 */
     .loading-bar-wrapper {
-      width: 220px; height: 4px; background: rgba(226, 232, 240, 0.6);
-      border-radius: 10px; overflow: hidden; margin-left: auto !important; margin-right: auto !important; display: block;
-      position: absolute; z-index: 15; top: 0; left: 50%;
-      transform: translate(-50%, 75vh); opacity: 1;
-      transition: opacity 0.3s ease, transform 0.3s ease;
+      width: 220px; height: 4px; background: rgba(226, 232, 240, 0.6); border-radius: 10px; overflow: hidden; margin-left: auto !important; margin-right: auto !important; display: block;
+      position: absolute; z-index: 15; top: 0; left: 50%; transform: translate(-50%, 75vh); opacity: 1; transition: opacity 0.3s ease, transform 0.3s ease;
     }
     .loading-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff4b72, #a259ff, #0072ff); transition: width 0.1s linear; }
     body.active .loading-bar-wrapper { opacity: 0; transform: translate(-50%, 70vh) scale(0.8); pointer-events: none; }
 
-    /* 軟矽膠果凍按壓模組 */
+    /* 🌟 軟矽膠果凍模組 */
     .apple-module {
       position: relative; z-index: 5;
       background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -83,24 +58,24 @@
       transition: transform 0.5s cubic-bezier(0.25, 1.2, 0.5, 1), box-shadow 0.4s ease;
       transform-origin: center center;
     }
-    body.active .apple-module:active { 
+    
+    /* 🌟 修正：加入 .is-pressed 強制觸發，繞過 iOS 限制 */
+    body.active .apple-module:active, body.active .apple-module.is-pressed { 
       transform: scale(0.985) !important; box-shadow: 0 5px 15px rgba(162, 89, 255, 0.02), 0 1px 2px rgba(0,0,0,0.01) !important;
-      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease !important; 
+      transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s ease !important; 
     }
     
     body.active .apple-module { animation: moduleSlideUp 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
     body.active .apple-module:nth-child(3) { animation-delay: 0.1s; }
     body.active .apple-module:nth-child(4) { animation-delay: 0.25s; }
     body.active .apple-module:nth-child(5) { animation-delay: 0.4s; }
-
     @keyframes moduleSlideUp { 0% { opacity: 0; transform: translateY(50px) scale(1); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 
     /* 內部排版與文字 */
     .module-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; pointer-events: none; }
     .module-header { font-size: 13px; font-weight: 700; color: #94a3b8; letter-spacing: 2px; text-transform: uppercase; }
     .task-badge { font-size: 11px; padding: 4px 10px; font-weight: 700; border-radius: 9999px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: all 0.3s ease; pointer-events: auto; }
-    .badge-remain { background: #ffe4e6; color: #f43f5e; }
-    .badge-done { background: #d1fae5; color: #065f46; }
+    .badge-remain { background: #ffe4e6; color: #f43f5e; } .badge-done { background: #d1fae5; color: #065f46; }
     .rainbow-text { background: linear-gradient(135deg, #ff4b72 0%, #a259ff 50%, #4b91ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0px 2px 4px rgba(162, 89, 255, 0.2)); }
     
     .task-list { display: flex; flex-direction: column; gap: 12px; }
@@ -108,30 +83,29 @@
     .task-item:hover { background: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
     .task-info { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; color: #475569; pointer-events: none; }
     .task-item.overdue { background: rgba(254, 230, 230, 0.85); border: 1px solid rgba(254, 205, 205, 0.6); }
-    .task-item.overdue:hover { background: rgba(254, 220, 220, 1); }
-    
     .tag-gradient { color: white; padding: 5px 10px; border-radius: 9px; font-size: 12px; font-weight: 800; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04); text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-    .tag-國文 { background: linear-gradient(135deg, #ff4b72, #ff758c); }
-    .tag-英文 { background: linear-gradient(135deg, #0072ff, #00c6ff); }
-    .tag-數學 { background: linear-gradient(135deg, #a259ff, #6366f1); }
-    .tag-自然 { background: linear-gradient(135deg, #059669, #34d399); }
-    .tag-社會 { background: linear-gradient(135deg, #eab308, #ff7e5f); }
+    .tag-國文 { background: linear-gradient(135deg, #ff4b72, #ff758c); } .tag-英文 { background: linear-gradient(135deg, #0072ff, #00c6ff); } .tag-數學 { background: linear-gradient(135deg, #a259ff, #6366f1); } .tag-自然 { background: linear-gradient(135deg, #059669, #34d399); } .tag-社會 { background: linear-gradient(135deg, #eab308, #ff7e5f); }
     .check-circle { width: 22px; height: 22px; border-radius: 8px; border: 2px solid #e2e8f0; display: flex; justify-content: center; align-items: center; transition: all 0.3s; font-size: 12px; font-weight: bold; color: #cbd5e1; pointer-events: none; }
     .task-item.checked { opacity: 0.35; filter: grayscale(60%); background: rgba(248, 250, 252, 0.5) !important; border: 1px solid #f1f5f9 !important; }
     .task-item.checked .check-circle { background: #64748b; border: none; color: white; }
     
     .subject-card { background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(255, 255, 255, 0.9); border-radius: 20px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-    .subject-header { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s; }
-    .subject-header:hover { background: rgba(248, 250, 252, 0.4); }
+    .subject-header { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; transition: background 0.15s; }
+    .subject-header:active { background: rgba(248, 250, 252, 0.8); }
     .subject-title { font-weight: 800; font-size: 16px; color: #334155; white-space: nowrap; min-width: 40px; pointer-events: none; }
     .header-bar-container { flex-grow: 1; margin: 0 16px; height: 6px; background: rgba(226, 232, 240, 0.5); border-radius: 10px; overflow: hidden; pointer-events: none; }
     .header-bar-fill { height: 100%; border-radius: 10px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
     .subject-right { display: flex; align-items: center; gap: 12px; white-space: nowrap; pointer-events: none; }
     .subject-progress { font-weight: 800; font-size: 16px; display: inline-block; }
-    .arrow-icon { width: 10px; height: 10px; border-right: 2px solid #cbd5e1; border-bottom: 2px solid #cbd5e1; transform: rotate(45deg); transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s; }
+    .arrow-icon { width: 10px; height: 10px; border-right: 2px solid #cbd5e1; border-bottom: 2px solid #cbd5e1; transform: rotate(45deg); transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s; }
     .subject-card.open .arrow-icon { transform: rotate(-135deg); }
     
-    .subject-details-wrapper { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+    /* 🌟 修正：加速手風琴動畫、並啟用 GPU 硬體加速，徹底消滅頓挫感！ */
+    .subject-details-wrapper { 
+      display: grid; grid-template-rows: 0fr; 
+      transition: grid-template-rows 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+      will-change: grid-template-rows; 
+    }
     .subject-card.open .subject-details-wrapper { grid-template-rows: 1fr; }
     .subject-details-inner { overflow: hidden; background: rgba(248, 250, 252, 0.5); cursor: default; }
     .volume-item { padding: 12px 20px; border-top: 1px solid rgba(226, 232, 240, 0.6); display: flex; justify-content: space-between; align-items: center; }
@@ -155,9 +129,7 @@
       <div id="ios-date" class="ios-clock-date">1月1日 星期一</div>
     </div>
 
-    <div class="loading-bar-wrapper">
-      <div id="loading-fill" class="loading-bar-fill"></div>
-    </div>
+    <div class="loading-bar-wrapper"><div id="loading-fill" class="loading-bar-fill"></div></div>
 
     <div class="apple-module">
       <div class="module-top-row">
@@ -168,16 +140,12 @@
     </div>
 
     <div class="apple-module">
-      <div class="module-top-row" style="justify-content: center;">
-        <div class="module-header">📊 複習進度</div>
-      </div>
+      <div class="module-top-row" style="justify-content: center;"><div class="module-header">📊 複習進度</div></div>
       <div id="accordion-container"></div>
     </div>
 
     <div class="apple-module" onclick="triggerCountdownVibrate()">
-      <div class="module-top-row" style="justify-content: center;">
-        <div class="module-header">⏰ 會考倒數計時</div>
-      </div>
+      <div class="module-top-row" style="justify-content: center;"><div class="module-header">⏰ 會考倒數計時</div></div>
       <div id="countdown" class="rainbow-text countdown-text">00天 00時 00分 00秒</div>
     </div>
   </div>
@@ -189,8 +157,7 @@
       const hr = String(now.getHours()).padStart(2, '0'); const min = String(now.getMinutes()).padStart(2, '0');
       const month = now.getMonth() + 1; const date = now.getDate();
       const dayNames = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
-      document.getElementById('ios-hr').innerText = hr;
-      document.getElementById('ios-min').innerText = min;
+      document.getElementById('ios-hr').innerText = hr; document.getElementById('ios-min').innerText = min;
       document.getElementById('ios-date').innerText = `${month}月${date}日 ${dayNames[now.getDay()]}`;
     }
     setInterval(updateIosClock, 1000); updateIosClock();
@@ -234,7 +201,7 @@
       else { badge.innerText = `${remaining} 剩餘`; badge.className = "task-badge badge-remain"; }
     }
 
-    // 4. 打勾逆向同步 (🌟 已經換上你的雲端網址)
+    // 4. 打勾逆向同步
     async function toggleTask(card) {
       if (navigator.vibrate) navigator.vibrate(40);
       const taskId = card.getAttribute('data-id');
@@ -303,7 +270,7 @@
       if (isOpening) { card.classList.add('open'); const themeColorMap = {"國文":"#ff4b72", "英文":"#0072ff", "數學":"#a259ff", "自然":"#059669", "社會":"#eab308"}; arrow.style.borderColor = themeColorMap[subject]; }
     }
 
-    // 6. 遠端連線接口 (🌟 已經換上你的雲端網址)
+    // 6. 遠端連線接口
     async function updateDashboardData() {
       try {
         const progressRes = await fetch('https://tutor-dashboard-backend-9tc6.onrender.com/api/progress');
@@ -329,62 +296,68 @@
 
       const dataQuery = updateDashboardData();
       await Promise.all([minAnimationWindow, dataQuery]);
-
       clearInterval(progressTracker);
       if (loadingFill) loadingFill.style.width = '100%';
 
-      setTimeout(() => {
-        document.body.classList.remove('loading');
-        document.body.classList.add('active');
-      }, 250);
+      setTimeout(() => { document.body.classList.remove('loading'); document.body.classList.add('active'); }, 250);
     }
 
     launchDashboardSequence();
 
-    // 7. 純淨 Apple 張力引擎 (Asymptotic Curve)
+    // 🌟 7. 重磅修正：原生的觸控引擎與防護機制 
     let startY = 0;
     let pullDirection = 0;
     let isPulling = false;
     const dashboard = document.getElementById('dashboard');
 
+    // [事件A] 手指碰觸：強制喚醒果凍按壓！
     window.addEventListener('touchstart', (e) => {
       startY = e.touches[0].clientY;
       pullDirection = 0;
       isPulling = false;
+      const module = e.target.closest('.apple-module');
+      if (module) module.classList.add('is-pressed');
     }, { passive: true });
 
+    // [事件B] 手指滑動：判斷是否拉扯，並立即解除果凍按壓（才不會黏著）
     window.addEventListener('touchmove', (e) => {
+      // 只要開始滑動，就解除按壓視覺，跟真的一樣
+      document.querySelectorAll('.is-pressed').forEach(el => el.classList.remove('is-pressed'));
+      
       if (!e.touches || e.touches.length === 0) return;
       const currentY = e.touches[0].clientY;
       let deltaY = currentY - startY;
 
+      // 🛡️ 核心防誤觸死區：滑動超過 3px 才算拉扯，完美保護手風琴的點擊！
+      if (Math.abs(deltaY) < 3 && pullDirection === 0) return;
+
       if (pullDirection === 0) {
-        if (window.scrollY <= 0 && deltaY > 0) {
-          pullDirection = 1; startY = currentY; dashboard.classList.add('dragging');
-        } else if (Math.ceil(window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2 && deltaY < 0) {
-          pullDirection = -1; startY = currentY; dashboard.classList.add('dragging');
-        }
+        if (window.scrollY <= 0 && deltaY > 0) { pullDirection = 1; startY = currentY; dashboard.classList.add('dragging'); } 
+        else if (Math.ceil(window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2 && deltaY < 0) { pullDirection = -1; startY = currentY; dashboard.classList.add('dragging'); }
       }
 
       if (pullDirection !== 0) {
         isPulling = true;
         if (e.cancelable) e.preventDefault(); 
-
         const absPull = Math.abs(currentY - startY);
         const maxStretch = window.innerHeight * 0.6; 
         const stretch = (absPull * maxStretch) / (absPull + maxStretch); 
-        
         dashboard.style.setProperty('--rubber-y', `${pullDirection * stretch * 0.7}px`);
         dashboard.style.setProperty('--rubber-gap', `${stretch * 0.15}px`);
       }
     }, { passive: false });
 
+    // [事件C] 鬆開手指：釋放所有觸控鎖
     window.addEventListener('touchend', () => {
+      document.querySelectorAll('.is-pressed').forEach(el => el.classList.remove('is-pressed'));
       if (isPulling) {
         isPulling = false; pullDirection = 0; dashboard.classList.remove('dragging');
-        dashboard.style.setProperty('--rubber-y', '0px');
-        dashboard.style.setProperty('--rubber-gap', '0px');
+        dashboard.style.setProperty('--rubber-y', '0px'); dashboard.style.setProperty('--rubber-gap', '0px');
       }
+    });
+
+    window.addEventListener('touchcancel', () => {
+      document.querySelectorAll('.is-pressed').forEach(el => el.classList.remove('is-pressed'));
     });
   </script>
 </body>
