@@ -14,20 +14,24 @@
       min-height: 100vh; color: #334155; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none;
     }
 
+    /* 絕不穿透的底層漸層布幕 */
     body::before {
       content: ''; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: linear-gradient(135deg, #fff3f3 0%, #f7f3ff 50%, #ffffff 100%);
-      z-index: -10;
+      background: linear-gradient(135deg, #fff3f3 0%, #f7f3ff 50%, #ffffff 100%); z-index: -10;
     }
     
+    /* 容器只負責整體位移，不負責耗效能的 gap 動畫 */
     .dashboard-container { 
       position: relative; width: 100%; max-width: 500px; display: flex; flex-direction: column; 
-      gap: calc(24px + var(--rubber-gap, 0px)); transform: translateY(var(--rubber-y, 0px)); 
-      transition: gap 0.6s cubic-bezier(0.25, 1.2, 0.5, 1), transform 0.6s cubic-bezier(0.25, 1.2, 0.5, 1);
+      gap: 24px; /* 固定間距，不參與動畫 */
+      transform: translateY(var(--container-y, 0px)); 
+      transition: transform 0.6s cubic-bezier(0.25, 1.2, 0.5, 1);
+      will-change: transform;
     }
-    .dashboard-container.dragging { transition: none !important; }
+    /* 拖拉時關閉延遲，達到 0 秒跟手 */
+    .dashboard-container.dragging { transition: transform 0.05s linear !important; }
     
-    /* ─── 🎬 蘋果級開機加載動畫系統 ─── */
+    /* ─── 🎬 開機加載動畫 ─── */
     .ios-clock-header {
       display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; user-select: none; text-align: center;
       position: relative; z-index: 20; opacity: 1; transform: translateY(0); margin-top: 36px; margin-bottom: 12px;
@@ -48,28 +52,33 @@
     .loading-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff4b72, #a259ff, #0072ff); transition: width 0.1s linear; }
     body.active .loading-bar-wrapper { opacity: 0; transform: translate(-50%, 70vh) scale(0.8); pointer-events: none; }
 
-    /* 🌟 軟矽膠果凍模組 */
+    /* 🌟 重構：模塊的 GPU 幾何與按壓引擎 */
     .apple-module {
       position: relative; z-index: 5;
       background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 28px; padding: 30px;
       box-shadow: 0 10px 30px rgba(162, 89, 255, 0.05), 0 1px 3px rgba(0,0,0,0.02); 
       cursor: pointer; opacity: 0; 
-      transition: transform 0.5s cubic-bezier(0.25, 1.2, 0.5, 1), box-shadow 0.4s ease;
-      transform-origin: center center;
+      
+      /* 🌟 終極 120fps 組合技：將「微縮」與「拉扯縫隙」全部交給 GPU 處理！ */
+      transform: 
+        translateY(calc(var(--pull-top, 0px) * var(--i-top, 0))) 
+        translateY(calc(var(--pull-bot, 0px) * var(--i-bot, 0))) 
+        scale(var(--press-scale, 1));
+        
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+      will-change: transform; /* 強制啟動硬體加速 */
     }
     
-    /* 🌟 修正：加入 .is-pressed 強制觸發，繞過 iOS 限制 */
-    body.active .apple-module:active, body.active .apple-module.is-pressed { 
-      transform: scale(0.985) !important; box-shadow: 0 5px 15px rgba(162, 89, 255, 0.02), 0 1px 2px rgba(0,0,0,0.01) !important;
-      transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s ease !important; 
-    }
+    /* 拖曳時解除回彈延遲，讓縫隙瞬間拉開 */
+    .dragging .apple-module { transition: transform 0.05s linear !important; }
     
+    /* 開機浮現動畫 */
     body.active .apple-module { animation: moduleSlideUp 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
     body.active .apple-module:nth-child(3) { animation-delay: 0.1s; }
     body.active .apple-module:nth-child(4) { animation-delay: 0.25s; }
     body.active .apple-module:nth-child(5) { animation-delay: 0.4s; }
-    @keyframes moduleSlideUp { 0% { opacity: 0; transform: translateY(50px) scale(1); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes moduleSlideUp { 0% { opacity: 0; transform: translateY(50px); } 100% { opacity: 1; transform: translateY(0); } }
 
     /* 內部排版與文字 */
     .module-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; pointer-events: none; }
@@ -80,7 +89,6 @@
     
     .task-list { display: flex; flex-direction: column; gap: 12px; }
     .task-item { background: rgba(255, 255, 255, 0.8); border: 1px solid #f1f5f9; border-radius: 16px; padding: 16px; display: flex; justify-content: space-between; align-items: center; transition: opacity 0.35s ease, background 0.35s ease, box-shadow 0.15s ease; }
-    .task-item:hover { background: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
     .task-info { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; color: #475569; pointer-events: none; }
     .task-item.overdue { background: rgba(254, 230, 230, 0.85); border: 1px solid rgba(254, 205, 205, 0.6); }
     .tag-gradient { color: white; padding: 5px 10px; border-radius: 9px; font-size: 12px; font-weight: 800; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04); text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
@@ -100,12 +108,7 @@
     .arrow-icon { width: 10px; height: 10px; border-right: 2px solid #cbd5e1; border-bottom: 2px solid #cbd5e1; transform: rotate(45deg); transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s; }
     .subject-card.open .arrow-icon { transform: rotate(-135deg); }
     
-    /* 🌟 修正：加速手風琴動畫、並啟用 GPU 硬體加速，徹底消滅頓挫感！ */
-    .subject-details-wrapper { 
-      display: grid; grid-template-rows: 0fr; 
-      transition: grid-template-rows 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
-      will-change: grid-template-rows; 
-    }
+    .subject-details-wrapper { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.2s cubic-bezier(0.4, 0, 0.2, 1); will-change: grid-template-rows; }
     .subject-card.open .subject-details-wrapper { grid-template-rows: 1fr; }
     .subject-details-inner { overflow: hidden; background: rgba(248, 250, 252, 0.5); cursor: default; }
     .volume-item { padding: 12px 20px; border-top: 1px solid rgba(226, 232, 240, 0.6); display: flex; justify-content: space-between; align-items: center; }
@@ -115,38 +118,55 @@
     .volume-fill { height: 100%; border-radius: 10px; }
     .volume-pct { font-size: 12px; font-weight: 700; min-width: 36px; text-align: right; display: inline-block; }
     .countdown-text { font-size: 28px; text-align: center; font-variant-numeric: tabular-nums; font-weight: 900; pointer-events: none; }
+
+    /* 🌟 v1.00 Spotlight 版本氣泡 */
+    .version-pill {
+      margin: 8px auto 20px auto; padding: 10px 24px; border-radius: 50px;
+      background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03), 0 1px 3px rgba(0,0,0,0.02);
+      border: 1px solid rgba(255,255,255,0.9);
+      font-size: 13px; font-weight: 800; letter-spacing: 0.5px; text-align: center;
+      opacity: 0; transform: translateY(20px);
+      
+      /* GPU 加速連動張力引擎 */
+      will-change: transform;
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    /* 確保拉扯時也有物理連動 */
+    .dashboard-container .version-pill {
+      transform: translateY(calc(var(--pull-top, 0px) * var(--i-top, 0))) translateY(calc(var(--pull-bot, 0px) * var(--i-bot, 0))) scale(1);
+    }
+    body.active .version-pill { animation: versionPop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; animation-delay: 0.6s; }
+    @keyframes versionPop { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body class="loading" ontouchstart="">
 
   <div class="dashboard-container" id="dashboard">
     <div class="ios-clock-header">
-      <div id="ios-time" class="ios-clock-time">
-        <div id="ios-hr" class="time-part time-hour">00</div>
-        <div class="time-colon">:</div>
-        <div id="ios-min" class="time-part time-min">00</div>
-      </div>
+      <div id="ios-time" class="ios-clock-time"><div id="ios-hr" class="time-part time-hour">00</div><div class="time-colon">:</div><div id="ios-min" class="time-part time-min">00</div></div>
       <div id="ios-date" class="ios-clock-date">1月1日 星期一</div>
     </div>
 
     <div class="loading-bar-wrapper"><div id="loading-fill" class="loading-bar-fill"></div></div>
 
-    <div class="apple-module">
-      <div class="module-top-row">
-        <div class="module-header">⚡ 今日任務</div>
-        <span id="task-badge" class="task-badge badge-remain">讀取中...</span>
-      </div>
+    <div class="apple-module interactable" style="--i-top: 0; --i-bot: 3;">
+      <div class="module-top-row"><div class="module-header">⚡ 今日任務</div><span id="task-badge" class="task-badge badge-remain">讀取中...</span></div>
       <div id="task-container" class="task-list"></div>
     </div>
 
-    <div class="apple-module">
+    <div class="apple-module interactable" style="--i-top: 1; --i-bot: 2;">
       <div class="module-top-row" style="justify-content: center;"><div class="module-header">📊 複習進度</div></div>
       <div id="accordion-container"></div>
     </div>
 
-    <div class="apple-module" onclick="triggerCountdownVibrate()">
+    <div class="apple-module interactable countdown-wrapper" style="--i-top: 2; --i-bot: 1;" onclick="triggerCountdownVibrate()">
       <div class="module-top-row" style="justify-content: center;"><div class="module-header">⏰ 會考倒數計時</div></div>
       <div id="countdown" class="rainbow-text countdown-text">00天 00時 00分 00秒</div>
+    </div>
+    
+    <div class="version-pill" style="--i-top: 3; --i-bot: 0;">
+      <span class="rainbow-text">✨ v1.00 會考複習控制台</span>
     </div>
   </div>
 
@@ -270,7 +290,7 @@
       if (isOpening) { card.classList.add('open'); const themeColorMap = {"國文":"#ff4b72", "英文":"#0072ff", "數學":"#a259ff", "自然":"#059669", "社會":"#eab308"}; arrow.style.borderColor = themeColorMap[subject]; }
     }
 
-    // 6. 遠端連線接口
+    // 6. 遠端連線
     async function updateDashboardData() {
       try {
         const progressRes = await fetch('https://tutor-dashboard-backend-9tc6.onrender.com/api/progress');
@@ -298,38 +318,35 @@
       await Promise.all([minAnimationWindow, dataQuery]);
       clearInterval(progressTracker);
       if (loadingFill) loadingFill.style.width = '100%';
-
       setTimeout(() => { document.body.classList.remove('loading'); document.body.classList.add('active'); }, 250);
     }
-
     launchDashboardSequence();
 
-    // 🌟 7. 重磅修正：原生的觸控引擎與防護機制 
-    let startY = 0;
-    let pullDirection = 0;
-    let isPulling = false;
+    // 🌟 7. 硬體級神經重構：獨立下沉感 + 120fps 張力拉扯
+    let startY = 0, pullDirection = 0, isPulling = false;
     const dashboard = document.getElementById('dashboard');
 
-    // [事件A] 手指碰觸：強制喚醒果凍按壓！
+    // ✅ JS 獨立綁定：保證每點必沉！縮放比例 0.95 絕對有感！
+    document.querySelectorAll('.interactable').forEach(mod => {
+      const pressDown = () => mod.style.setProperty('--press-scale', '0.95');
+      const pressUp = () => mod.style.setProperty('--press-scale', '1');
+      mod.addEventListener('touchstart', pressDown, { passive: true });
+      mod.addEventListener('touchend', pressUp);
+      mod.addEventListener('touchcancel', pressUp);
+      mod.addEventListener('touchmove', pressUp, { passive: true }); // 一滑動就解除下沉
+    });
+
     window.addEventListener('touchstart', (e) => {
-      startY = e.touches[0].clientY;
-      pullDirection = 0;
-      isPulling = false;
-      const module = e.target.closest('.apple-module');
-      if (module) module.classList.add('is-pressed');
+      startY = e.touches[0].clientY; pullDirection = 0; isPulling = false;
     }, { passive: true });
 
-    // [事件B] 手指滑動：判斷是否拉扯，並立即解除果凍按壓（才不會黏著）
     window.addEventListener('touchmove', (e) => {
-      // 只要開始滑動，就解除按壓視覺，跟真的一樣
-      document.querySelectorAll('.is-pressed').forEach(el => el.classList.remove('is-pressed'));
-      
       if (!e.touches || e.touches.length === 0) return;
       const currentY = e.touches[0].clientY;
       let deltaY = currentY - startY;
 
-      // 🛡️ 核心防誤觸死區：滑動超過 3px 才算拉扯，完美保護手風琴的點擊！
-      if (Math.abs(deltaY) < 3 && pullDirection === 0) return;
+      // 防止手風琴誤觸發抖動 (死區)
+      if (Math.abs(deltaY) < 4 && pullDirection === 0) return;
 
       if (pullDirection === 0) {
         if (window.scrollY <= 0 && deltaY > 0) { pullDirection = 1; startY = currentY; dashboard.classList.add('dragging'); } 
@@ -342,22 +359,30 @@
         const absPull = Math.abs(currentY - startY);
         const maxStretch = window.innerHeight * 0.6; 
         const stretch = (absPull * maxStretch) / (absPull + maxStretch); 
-        dashboard.style.setProperty('--rubber-y', `${pullDirection * stretch * 0.7}px`);
-        dashboard.style.setProperty('--rubber-gap', `${stretch * 0.15}px`);
+        
+        // 🚀 呼叫 GPU：直接寫入 CSS 變數，由 transform 渲染！
+        requestAnimationFrame(() => {
+          dashboard.style.setProperty('--container-y', `${pullDirection * stretch * 0.6}px`);
+          if (pullDirection === 1) { // 往下拉
+            document.body.style.setProperty('--pull-top', `${stretch * 0.12}px`);
+            document.body.style.setProperty('--pull-bot', `0px`);
+          } else { // 往上拉
+            document.body.style.setProperty('--pull-top', `0px`);
+            document.body.style.setProperty('--pull-bot', `${-stretch * 0.12}px`);
+          }
+        });
       }
     }, { passive: false });
 
-    // [事件C] 鬆開手指：釋放所有觸控鎖
     window.addEventListener('touchend', () => {
-      document.querySelectorAll('.is-pressed').forEach(el => el.classList.remove('is-pressed'));
       if (isPulling) {
         isPulling = false; pullDirection = 0; dashboard.classList.remove('dragging');
-        dashboard.style.setProperty('--rubber-y', '0px'); dashboard.style.setProperty('--rubber-gap', '0px');
+        requestAnimationFrame(() => {
+          dashboard.style.setProperty('--container-y', '0px');
+          document.body.style.setProperty('--pull-top', '0px');
+          document.body.style.setProperty('--pull-bot', '0px');
+        });
       }
-    });
-
-    window.addEventListener('touchcancel', () => {
-      document.querySelectorAll('.is-pressed').forEach(el => el.classList.remove('is-pressed'));
     });
   </script>
 </body>
