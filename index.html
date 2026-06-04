@@ -5,21 +5,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>📖 會考複習</title>
   <style>
-    /* 核心防護 */
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none !important; user-select: none !important; -webkit-touch-callout: none !important; }
-    html, body { background-color: #fff3f3; width: 100vw; height: 100vh; overflow: hidden; touch-action: none !important; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; color: #334155; -webkit-tap-highlight-color: transparent; }
-
-    body::before { content: ''; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #fff3f3 0%, #f7f3ff 50%, #ffffff 100%); z-index: -10; }
+    /* 核心防護：封鎖文字選取與原生干擾 */
+    * { 
+      box-sizing: border-box; margin: 0; padding: 0; 
+      -webkit-user-select: none !important; user-select: none !important; 
+      -webkit-touch-callout: none !important;
+    }
     
-    /* 容器排版修復：拿掉底部寫死的 60px，實現完美置中 */
+    html, body { 
+      background-color: #fff3f3; 
+      width: 100vw; height: 100vh; overflow: hidden; 
+      touch-action: none !important; 
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex; flex-direction: column; align-items: center; 
+      color: #334155; -webkit-tap-highlight-color: transparent;
+    }
+
+    body::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: linear-gradient(135deg, #fff3f3 0%, #f7f3ff 50%, #ffffff 100%); z-index: -10;
+    }
+    
     .dashboard-container { 
       position: absolute; top: 0; left: 50%; transform: translate3d(-50%, 0, 0);
       width: 100%; max-width: 500px; min-height: 100vh; display: flex; flex-direction: column; gap: 24px;
       padding: 20px; will-change: transform;
     }
     
-    /* 開機加載系統 */
+    /* ─── 🎬 開機加載系統 ─── */
     .ios-clock-header { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; text-align: center; position: relative; z-index: 20; margin-top: 36px; margin-bottom: 12px; }
     .ios-clock-time { display: flex; align-items: center; justify-content: center; width: 100%; font-size: 60px; font-weight: 700; color: #1e293b; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.01)); }
     .time-part { flex: 1; } .time-hour { text-align: right; } .time-min { text-align: left; } .time-colon { margin: 0 4px; position: relative; top: -3px; }
@@ -32,7 +48,6 @@
     .loading-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff4b72, #a259ff, #0072ff); transition: width 0.1s linear; }
     body.active .loading-bar-wrapper { opacity: 0; transform: translate(-50%, 70vh) scale(0.8); pointer-events: none; }
     
-    /* 🌟 v1.09 智慧提示語 */
     .loading-hint { position: absolute; top: 0; left: 50%; transform: translate(-50%, calc(75vh + 16px)); font-size: 12px; font-weight: 700; color: #94a3b8; opacity: 0; transition: opacity 0.5s ease; white-space: nowrap; }
     body.active .loading-hint { opacity: 0 !important; pointer-events: none; }
 
@@ -92,7 +107,7 @@
     
     .countdown-text { font-size: clamp(14px, 4.8vw, 21px); text-align: center; font-variant-numeric: tabular-nums; font-weight: 900; white-space: nowrap; pointer-events: none; }
 
-    /* 版本氣泡：使用 margin-top: auto 推擠置底部 */
+    /* 版本氣泡：完美置底對齊 */
     .version-pill {
       margin: auto auto 10px auto; padding: 10px 24px; border-radius: 50px;
       background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -132,11 +147,15 @@
     </div>
     
     <div class="version-pill" data-idx="4">
-      <span class="rainbow-text">✨ v1.09 by zhaxia</span>
+      <span class="rainbow-text">✨ v1.10 by zhaxia</span>
     </div>
   </div>
 
   <script>
+    // 徹底殺死 iOS 長按放大鏡
+    window.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+    window.addEventListener('selectstart', function(e) { e.preventDefault(); });
+
     // 1. 時鐘
     function updateIosClock() {
       const now = new Date();
@@ -197,7 +216,7 @@
             const progressJson = await progressRes.json();
             if (progressJson.status === "success") {
               renderAccordion(progressJson.data);
-              initPhysicsCache(); // 重建快取
+              initPhysicsCache();
             }
           }, 1200);
         }
@@ -247,7 +266,7 @@
       const card = headerElement.parentElement; const isOpening = !card.classList.contains('open');
       document.querySelectorAll('.subject-card').forEach(c => { c.classList.remove('open'); c.querySelector('.arrow-icon').style.borderColor = "#cbd5e1"; });
       if (isOpening) { card.classList.add('open'); card.querySelector('.arrow-icon').style.borderColor = {"國文":"#ff4b72", "英文":"#0072ff", "數學":"#a259ff", "自然":"#059669", "社會":"#eab308"}[subject]; }
-      setTimeout(updateMaxScroll, 400); // 等待展開完畢更新滾動極限
+      setTimeout(updateMaxScroll, 400); 
     }
 
     // 6. 加載與渲染排程
@@ -263,7 +282,6 @@
     }
 
     async function launchDashboardSequence() {
-      // 智慧等待提示
       const hintTimer = setTimeout(() => {
         const hint = document.getElementById('loading-hint');
         hint.style.opacity = '1'; hint.innerText = "伺服器喚醒中，大約需要 30 秒...";
@@ -283,27 +301,21 @@
       setTimeout(() => { 
         document.body.classList.remove('loading'); 
         document.body.classList.add('active'); 
-        initPhysicsCache(); // 資料渲染完畢，建立 DOM 記憶體快取
+        initPhysicsCache();
       }, 150);
     }
     launchDashboardSequence();
 
-    // 🌟🌟🌟 7. v1.09 效能濾波與物理快取引擎 🌟🌟🌟
+    // 🌟🌟🌟 7. v1.10 終極效能物理快取引擎 🌟🌟🌟
     const dashboard = document.getElementById('dashboard');
     let currentY = 0, maxScroll = 0, velocity = 0;
     let isDragging = false, lastTouchY = 0, lastTouchTime = 0;
     let cachedModules = [];
 
-    // 🚀 在資料渲染完成後，將 DOM 存入記憶體陣列，省去每幀 querySelectorAll 的消耗
     function initPhysicsCache() {
       cachedModules = [];
       document.querySelectorAll('.interactable, .version-pill').forEach(mod => {
-        cachedModules.push({
-          el: mod,
-          idx: parseFloat(mod.dataset.idx || 1),
-          currentScale: 1.0
-        });
-        // 綁定下沉事件
+        cachedModules.push({ el: mod, idx: parseFloat(mod.dataset.idx || 1), currentScale: 1.0 });
         mod.addEventListener('pointerdown', () => { if (Math.abs(velocity) < 4) mod.classList.add('is-pressed'); });
         mod.addEventListener('pointerup', () => mod.classList.remove('is-pressed'));
         mod.addEventListener('pointercancel', () => mod.classList.remove('is-pressed'));
@@ -323,11 +335,7 @@
           velocity *= 0.94;
         }
         if (Math.abs(velocity) > 0.03 || currentY < 0 || currentY > maxScroll) currentY += velocity;
-        else {
-          velocity = 0;
-          if (currentY < 0) currentY = 0;
-          if (currentY > maxScroll) currentY = maxScroll;
-        }
+        else { velocity = 0; if (currentY < 0) currentY = 0; if (currentY > maxScroll) currentY = maxScroll; }
       }
 
       dashboard.style.transform = `translate3d(-50%, ${-currentY}px, 0)`;
@@ -336,7 +344,6 @@
       if (currentY < 0) rubberDelta = currentY; 
       else if (currentY > maxScroll) rubberDelta = currentY - maxScroll;
 
-      // 直接讀取陣列快取，效能頂滿 120fps
       for (let i = 0; i < cachedModules.length; i++) {
         let item = cachedModules[i];
         let staggerY = rubberDelta * item.idx * 0.22; 
@@ -369,10 +376,9 @@
 
       currentY -= dy;
       
-      // 🚀 核心優化：120Hz 速度平滑濾波 (Velocity Smoothing)
       if (dt > 0) {
         let instantVelocity = (-dy / dt) * 16.6;
-        velocity = velocity * 0.4 + instantVelocity * 0.6; // 混合歷史速度，消除微顫
+        velocity = velocity * 0.4 + instantVelocity * 0.6;
       }
 
       lastTouchY = y; lastTouchTime = now;
