@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>📖 會考複習</title>
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="會考複習">
+  <link rel="apple-touch-icon" href="icon.png">
+
   <style>
     /* 核心防護 */
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none !important; user-select: none !important; -webkit-touch-callout: none !important; }
@@ -98,7 +104,7 @@
     
     .countdown-text { font-size: clamp(14px, 4.8vw, 21px); text-align: center; font-variant-numeric: tabular-nums; font-weight: 900; white-space: nowrap; pointer-events: none; }
 
-    /* 🌟 v1.13 修正：拿掉 margin，只留底部距離，讓外衣去幫它置中！ */
+    /* 版本氣泡 */
     .version-pill {
       margin-bottom: 10px; padding: 10px 24px; border-radius: 50px;
       background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -150,7 +156,7 @@
     
     <div class="physics-wrapper" data-idx="4" style="margin-top: auto; display: flex; justify-content: center;">
       <div class="version-pill interactable">
-        <span class="rainbow-text">✨ v1.13 by zhaxia</span>
+        <span class="rainbow-text">✨ v1.14 by zhaxia</span>
       </div>
     </div>
   </div>
@@ -308,7 +314,7 @@
     }
     launchDashboardSequence();
 
-    // 🌟 7. 物理引擎：專注外衣拉扯，放過 Q 彈內層
+    // 🌟 7. 物理引擎
     const dashboard = document.getElementById('dashboard');
     let currentY = 0, maxScroll = 0, velocity = 0;
     let isDragging = false, lastTouchY = 0, lastTouchTime = 0;
