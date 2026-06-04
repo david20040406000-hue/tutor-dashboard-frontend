@@ -36,7 +36,7 @@
     /* 外層物理容器 */
     .physics-wrapper { width: 100%; will-change: transform; }
 
-    /* 🌟 v1.12 內層 Q 彈模塊 */
+    /* 內層 Q 彈模塊 */
     .apple-module {
       position: relative; z-index: 5; background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 28px; padding: 30px;
@@ -45,14 +45,12 @@
       transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
     }
     
-    /* 🔥 下沉加深至 0.94，視覺回饋更明顯 */
     .apple-module.is-pressed { 
       transform: scale(0.94);
       box-shadow: 0 4px 12px rgba(162, 89, 255, 0.02) !important; 
       transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
-    /* 🌟 v1.12 修正：用 data-idx 取代脆弱的 nth-child，完美喚醒所有模塊 */
     body.active .physics-wrapper[data-idx="1"] .apple-module { animation: moduleSlideUp 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards; animation-delay: 0.1s; }
     body.active .physics-wrapper[data-idx="2"] .apple-module { animation: moduleSlideUp 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards; animation-delay: 0.2s; }
     body.active .physics-wrapper[data-idx="3"] .apple-module { animation: moduleSlideUp 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards; animation-delay: 0.3s; }
@@ -100,9 +98,9 @@
     
     .countdown-text { font-size: clamp(14px, 4.8vw, 21px); text-align: center; font-variant-numeric: tabular-nums; font-weight: 900; white-space: nowrap; pointer-events: none; }
 
-    /* 🌟 v1.12 版本氣泡同享加深 Q 彈 */
+    /* 🌟 v1.13 修正：拿掉 margin，只留底部距離，讓外衣去幫它置中！ */
     .version-pill {
-      margin: auto auto 10px auto; padding: 10px 24px; border-radius: 50px;
+      margin-bottom: 10px; padding: 10px 24px; border-radius: 50px;
       background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       box-shadow: 0 4px 15px rgba(0,0,0,0.03), 0 1px 3px rgba(0,0,0,0.02); border: 1px solid rgba(255,255,255,0.9);
       font-size: 13px; font-weight: 800; letter-spacing: 0.5px; text-align: center;
@@ -150,9 +148,9 @@
       </div>
     </div>
     
-    <div class="physics-wrapper" data-idx="4">
+    <div class="physics-wrapper" data-idx="4" style="margin-top: auto; display: flex; justify-content: center;">
       <div class="version-pill interactable">
-        <span class="rainbow-text">✨ v1.12 by zhaxia</span>
+        <span class="rainbow-text">✨ v1.13 by zhaxia</span>
       </div>
     </div>
   </div>
