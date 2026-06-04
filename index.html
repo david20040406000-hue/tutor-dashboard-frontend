@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>📖 會考複習</title>
+  <title>會考複習</title>
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="會考複習">
-  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png?v=2">
+  <link rel="icon" href="icon.png?v=2">
 
   <style>
     /* 核心防護 */
@@ -148,7 +149,7 @@
     </div>
 
     <div class="physics-wrapper" data-idx="3">
-      <div class="apple-module interactable countdown-wrapper" onclick="triggerCountdownVibrate()">
+      <div class="apple-module interactable countdown-wrapper">
         <div class="module-top-row" style="justify-content: center;"><div class="module-header">⏰ 會考倒數計時</div></div>
         <div id="countdown" class="rainbow-text countdown-text">00天 00時 00分 00秒</div>
       </div>
@@ -156,7 +157,7 @@
     
     <div class="physics-wrapper" data-idx="4" style="margin-top: auto; display: flex; justify-content: center;">
       <div class="version-pill interactable">
-        <span class="rainbow-text">✨ v1.14 by zhaxia</span>
+        <span class="rainbow-text">✨ v1.15 by zhaxia</span>
       </div>
     </div>
   </div>
@@ -185,7 +186,6 @@
       const s = String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0');
       document.getElementById("countdown").innerHTML = `${d}天 ${h}時 ${m}分 ${s}秒`;
     }, 1000);
-    function triggerCountdownVibrate() { if (navigator.vibrate) navigator.vibrate(40); }
 
     // 3. 任務渲染
     function renderLiveTasks(tasks) {
@@ -214,7 +214,6 @@
 
     // 4. 打勾同步
     async function toggleTask(card) {
-      if (navigator.vibrate) navigator.vibrate(40);
       const taskId = card.getAttribute('data-id');
       const newDoneState = !card.classList.contains('checked');
       card.classList.toggle('checked'); card.querySelector('.check-circle').innerHTML = newDoneState ? "✓" : "";
@@ -314,7 +313,7 @@
     }
     launchDashboardSequence();
 
-    // 🌟 7. 物理引擎
+    // 🌟🌟🌟 7. v1.15 雙向錨點物理引擎 🌟🌟🌟
     const dashboard = document.getElementById('dashboard');
     let currentY = 0, maxScroll = 0, velocity = 0;
     let isDragging = false, lastTouchY = 0, lastTouchTime = 0;
@@ -351,14 +350,30 @@
 
       dashboard.style.transform = `translate3d(-50%, ${-currentY}px, 0)`;
 
+      // 🌟 v1.15 動態錨點演算：無論頂部或底部，永遠都是向下/向上優雅拉伸
       let rubberDelta = 0;
-      if (currentY < 0) rubberDelta = currentY; 
-      else if (currentY > maxScroll) rubberDelta = currentY - maxScroll;
-
-      for (let i = 0; i < cachedModules.length; i++) {
-        let item = cachedModules[i];
-        let staggerY = rubberDelta * item.idx * 0.22; 
-        item.el.style.transform = `translate3d(0, ${staggerY}px, 0)`;
+      if (currentY < 0) {
+        // 在頂部向下拉：第一塊黏住手指，底下的被拉長
+        rubberDelta = currentY; 
+        for (let i = 0; i < cachedModules.length; i++) {
+          let item = cachedModules[i];
+          let staggerY = Math.abs(rubberDelta) * (item.idx - 1) * 0.15; 
+          item.el.style.transform = `translate3d(0, ${staggerY}px, 0)`;
+        }
+      } else if (currentY > maxScroll) {
+        // 在底部向上拉：最後一塊黏住手指，上面的被拉長
+        rubberDelta = currentY - maxScroll;
+        const total = cachedModules.length;
+        for (let i = 0; i < cachedModules.length; i++) {
+          let item = cachedModules[i];
+          let staggerY = -Math.abs(rubberDelta) * (total - item.idx) * 0.15; 
+          item.el.style.transform = `translate3d(0, ${staggerY}px, 0)`;
+        }
+      } else {
+        // 正常區域歸零
+        for (let i = 0; i < cachedModules.length; i++) {
+          cachedModules[i].el.style.transform = `translate3d(0, 0, 0)`;
+        }
       }
 
       requestAnimationFrame(physicsLoop);
@@ -366,12 +381,18 @@
     requestAnimationFrame(physicsLoop);
 
     window.addEventListener('pointerdown', (e) => {
+      // 🌟 v1.15 手勢鎖：如果還在 loading，徹底封殺觸控，保證開機動畫不被打擾
+      if (document.body.classList.contains('loading')) return; 
+      
       if (e.button !== 0 && e.pointerType === 'mouse') return;
       isDragging = true; velocity = 0;
       lastTouchY = e.clientY; lastTouchTime = Date.now();
     });
 
     window.addEventListener('pointermove', (e) => {
+      // 🌟 v1.15 手勢鎖
+      if (document.body.classList.contains('loading')) return;
+      
       if (!isDragging) return;
       const y = e.clientY;
       let dy = y - lastTouchY;
@@ -392,7 +413,10 @@
       lastTouchY = y; lastTouchTime = now;
     });
 
-    window.addEventListener('pointerup', () => { isDragging = false; velocity = Math.max(-40, Math.min(40, velocity)); });
+    window.addEventListener('pointerup', () => { 
+      if (document.body.classList.contains('loading')) return;
+      isDragging = false; velocity = Math.max(-40, Math.min(40, velocity)); 
+    });
     window.addEventListener('pointercancel', () => { isDragging = false; });
   </script>
 </body>
