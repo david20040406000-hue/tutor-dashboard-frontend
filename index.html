@@ -33,30 +33,30 @@
     .loading-hint { position: absolute; top: 0; left: 50%; transform: translate(-50%, calc(75vh + 16px)); font-size: 12px; font-weight: 700; color: #94a3b8; opacity: 0; transition: opacity 0.5s ease; white-space: nowrap; }
     body.active .loading-hint { opacity: 0 !important; pointer-events: none; }
 
-    /* 🌟 v1.11 雙層架構：外層專心負責 120Hz 物理拉扯 */
+    /* 外層物理容器 */
     .physics-wrapper { width: 100%; will-change: transform; }
 
-    /* 🌟 v1.11 內層專心負責 Q 彈魔法 */
+    /* 🌟 v1.12 內層 Q 彈模塊 */
     .apple-module {
       position: relative; z-index: 5; background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 28px; padding: 30px;
       box-shadow: 0 10px 30px rgba(162, 89, 255, 0.05), 0 1px 3px rgba(0,0,0,0.02); 
       cursor: pointer; opacity: 0; transform-origin: center center;
-      
-      /* 🔥 靈魂回歸：放開時的超 Q 彈果凍曲線 (1.56 產生微放大回彈) */
       transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
     }
     
-    /* 🔥 按下時：迅速且柔軟地下沉 */
+    /* 🔥 下沉加深至 0.94，視覺回饋更明顯 */
     .apple-module.is-pressed { 
-      transform: scale(0.96);
+      transform: scale(0.94);
       box-shadow: 0 4px 12px rgba(162, 89, 255, 0.02) !important; 
       transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
-    body.active .physics-wrapper:nth-child(3) .apple-module { animation: moduleSlideUp 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards; animation-delay: 0.1s; }
-    body.active .physics-wrapper:nth-child(4) .apple-module { animation: moduleSlideUp 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards; animation-delay: 0.2s; }
-    body.active .physics-wrapper:nth-child(5) .apple-module { animation: moduleSlideUp 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards; animation-delay: 0.3s; }
+    /* 🌟 v1.12 修正：用 data-idx 取代脆弱的 nth-child，完美喚醒所有模塊 */
+    body.active .physics-wrapper[data-idx="1"] .apple-module { animation: moduleSlideUp 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards; animation-delay: 0.1s; }
+    body.active .physics-wrapper[data-idx="2"] .apple-module { animation: moduleSlideUp 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards; animation-delay: 0.2s; }
+    body.active .physics-wrapper[data-idx="3"] .apple-module { animation: moduleSlideUp 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards; animation-delay: 0.3s; }
+    
     @keyframes moduleSlideUp { 0% { opacity: 0; transform: translateY(50px); } 100% { opacity: 1; transform: translateY(0); } }
 
     /* 內部排版 */
@@ -100,7 +100,7 @@
     
     .countdown-text { font-size: clamp(14px, 4.8vw, 21px); text-align: center; font-variant-numeric: tabular-nums; font-weight: 900; white-space: nowrap; pointer-events: none; }
 
-    /* 版本氣泡同樣享受 Q 彈魔法 */
+    /* 🌟 v1.12 版本氣泡同享加深 Q 彈 */
     .version-pill {
       margin: auto auto 10px auto; padding: 10px 24px; border-radius: 50px;
       background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -109,8 +109,11 @@
       opacity: 0; transform-origin: center center;
       transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .version-pill.is-pressed { transform: scale(0.92); transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1); }
-    body.active .physics-wrapper:nth-child(6) .version-pill { animation: versionPop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; animation-delay: 0.5s; }
+    .version-pill.is-pressed { 
+      transform: scale(0.94); 
+      transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1); 
+    }
+    body.active .physics-wrapper[data-idx="4"] .version-pill { animation: versionPop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; animation-delay: 0.4s; }
     @keyframes versionPop { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
@@ -149,7 +152,7 @@
     
     <div class="physics-wrapper" data-idx="4">
       <div class="version-pill interactable">
-        <span class="rainbow-text">✨ v1.11 by zhaxia</span>
+        <span class="rainbow-text">✨ v1.12 by zhaxia</span>
       </div>
     </div>
   </div>
@@ -178,6 +181,7 @@
       const s = String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0');
       document.getElementById("countdown").innerHTML = `${d}天 ${h}時 ${m}分 ${s}秒`;
     }, 1000);
+    function triggerCountdownVibrate() { if (navigator.vibrate) navigator.vibrate(40); }
 
     // 3. 任務渲染
     function renderLiveTasks(tasks) {
@@ -206,6 +210,7 @@
 
     // 4. 打勾同步
     async function toggleTask(card) {
+      if (navigator.vibrate) navigator.vibrate(40);
       const taskId = card.getAttribute('data-id');
       const newDoneState = !card.classList.contains('checked');
       card.classList.toggle('checked'); card.querySelector('.check-circle').innerHTML = newDoneState ? "✓" : "";
@@ -216,9 +221,7 @@
           setTimeout(async () => {
             const progressRes = await fetch('https://tutor-dashboard-backend-9tc6.onrender.com/api/progress');
             const progressJson = await progressRes.json();
-            if (progressJson.status === "success") {
-              renderAccordion(progressJson.data);
-            }
+            if (progressJson.status === "success") renderAccordion(progressJson.data);
           }, 1200);
         }
       } catch (error) { console.error("後端連線失敗", error); }
@@ -307,7 +310,7 @@
     }
     launchDashboardSequence();
 
-    // 🌟🌟🌟 7. v1.11 物理引擎：專注於外衣拉扯，絕不干擾 Q 彈內層 🌟🌟🌟
+    // 🌟 7. 物理引擎：專注外衣拉扯，放過 Q 彈內層
     const dashboard = document.getElementById('dashboard');
     let currentY = 0, maxScroll = 0, velocity = 0;
     let isDragging = false, lastTouchY = 0, lastTouchTime = 0;
@@ -315,12 +318,10 @@
 
     function initPhysicsCache() {
       cachedModules = [];
-      // 快取外層的 physics-wrapper，物理引擎只動外衣！
       document.querySelectorAll('.physics-wrapper').forEach(wrapper => {
         cachedModules.push({ el: wrapper, idx: parseFloat(wrapper.dataset.idx || 1) });
       });
       
-      // 綁定觸控事件到內層的 interactable
       document.querySelectorAll('.interactable').forEach(mod => {
         mod.addEventListener('pointerdown', () => { if (Math.abs(velocity) < 4) mod.classList.add('is-pressed'); });
         mod.addEventListener('pointerup', () => mod.classList.remove('is-pressed'));
@@ -350,7 +351,6 @@
       if (currentY < 0) rubberDelta = currentY; 
       else if (currentY > maxScroll) rubberDelta = currentY - maxScroll;
 
-      // 迴圈只負責更改外衣的 Y 軸座標，徹底放過縮放（Scale）
       for (let i = 0; i < cachedModules.length; i++) {
         let item = cachedModules[i];
         let staggerY = rubberDelta * item.idx * 0.22; 
@@ -373,7 +373,6 @@
       let dy = y - lastTouchY;
       const now = Date.now(); const dt = now - lastTouchTime;
 
-      // 滑動時解除所有內層卡片的下沉狀態
       document.querySelectorAll('.is-pressed').forEach(m => m.classList.remove('is-pressed'));
 
       if (currentY < 0 && dy > 0) dy *= 0.35;
