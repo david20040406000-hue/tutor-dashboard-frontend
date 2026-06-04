@@ -107,7 +107,7 @@
 
     /* 版本氣泡 */
     .version-pill {
-      margin-bottom: 10px; padding: 10px 24px; border-radius: 50px;
+      margin: auto auto 10px auto; padding: 10px 24px; border-radius: 50px;
       background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       box-shadow: 0 4px 15px rgba(0,0,0,0.03), 0 1px 3px rgba(0,0,0,0.02); border: 1px solid rgba(255,255,255,0.9);
       font-size: 13px; font-weight: 800; letter-spacing: 0.5px; text-align: center;
@@ -149,7 +149,7 @@
     </div>
 
     <div class="physics-wrapper" data-idx="3">
-      <div class="apple-module interactable countdown-wrapper">
+      <div class="apple-module interactable countdown-wrapper" onclick="triggerCountdownVibrate()">
         <div class="module-top-row" style="justify-content: center;"><div class="module-header">⏰ 會考倒數計時</div></div>
         <div id="countdown" class="rainbow-text countdown-text">00天 00時 00分 00秒</div>
       </div>
@@ -157,7 +157,7 @@
     
     <div class="physics-wrapper" data-idx="4" style="margin-top: auto; display: flex; justify-content: center;">
       <div class="version-pill interactable">
-        <span class="rainbow-text">✨ v1.15 by zhaxia</span>
+        <span class="rainbow-text">✨ v1.16 by zhaxia</span>
       </div>
     </div>
   </div>
@@ -186,6 +186,7 @@
       const s = String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0');
       document.getElementById("countdown").innerHTML = `${d}天 ${h}時 ${m}分 ${s}秒`;
     }, 1000);
+    function triggerCountdownVibrate() { if (navigator.vibrate) navigator.vibrate(40); }
 
     // 3. 任務渲染
     function renderLiveTasks(tasks) {
@@ -214,6 +215,7 @@
 
     // 4. 打勾同步
     async function toggleTask(card) {
+      if (navigator.vibrate) navigator.vibrate(40);
       const taskId = card.getAttribute('data-id');
       const newDoneState = !card.classList.contains('checked');
       card.classList.toggle('checked'); card.querySelector('.check-circle').innerHTML = newDoneState ? "✓" : "";
@@ -313,7 +315,7 @@
     }
     launchDashboardSequence();
 
-    // 🌟🌟🌟 7. v1.15 雙向錨點物理引擎 🌟🌟🌟
+    // 🌟🌟🌟 7. v1.16 終極魔法：彈力限幅與過衝剎車 🌟🌟🌟
     const dashboard = document.getElementById('dashboard');
     let currentY = 0, maxScroll = 0, velocity = 0;
     let isDragging = false, lastTouchY = 0, lastTouchTime = 0;
@@ -338,22 +340,38 @@
     function physicsLoop() {
       if (!isDragging) {
         if (currentY < 0) {
-          velocity = (velocity + (0 - currentY) * 0.06) * 0.82; 
+          // 🚀 頂部彈簧限幅：最高力量鎖死在 12，防止極端暴衝
+          let force = Math.min((0 - currentY) * 0.08, 12);
+          velocity = (velocity + force) * 0.8;
         } else if (currentY > maxScroll) {
-          velocity = (velocity + (maxScroll - currentY) * 0.06) * 0.82;
+          // 🚀 底部彈簧限幅：最高力量鎖死在 12
+          let force = Math.min((currentY - maxScroll) * 0.08, 12);
+          velocity = (velocity - force) * 0.8;
         } else {
-          velocity *= 0.94;
+          velocity *= 0.92;
         }
-        if (Math.abs(velocity) > 0.03 || currentY < 0 || currentY > maxScroll) currentY += velocity;
-        else { velocity = 0; if (currentY < 0) currentY = 0; if (currentY > maxScroll) currentY = maxScroll; }
+
+        // 🚀 v1.16 終極過衝剎車：跨越邊界瞬間吸收動能，只允許滑過去一點點！
+        let nextY = currentY + velocity;
+        if (currentY < 0 && nextY >= 0) {
+          velocity = Math.min(velocity, 5); 
+        } else if (currentY > maxScroll && nextY <= maxScroll) {
+          velocity = Math.max(velocity, -5); 
+        }
+
+        if (Math.abs(velocity) > 0.03 || currentY < 0 || currentY > maxScroll) {
+          currentY += velocity;
+        } else { 
+          velocity = 0; 
+          if (currentY < 0) currentY = 0; 
+          if (currentY > maxScroll) currentY = maxScroll; 
+        }
       }
 
       dashboard.style.transform = `translate3d(-50%, ${-currentY}px, 0)`;
 
-      // 🌟 v1.15 動態錨點演算：無論頂部或底部，永遠都是向下/向上優雅拉伸
       let rubberDelta = 0;
       if (currentY < 0) {
-        // 在頂部向下拉：第一塊黏住手指，底下的被拉長
         rubberDelta = currentY; 
         for (let i = 0; i < cachedModules.length; i++) {
           let item = cachedModules[i];
@@ -361,7 +379,6 @@
           item.el.style.transform = `translate3d(0, ${staggerY}px, 0)`;
         }
       } else if (currentY > maxScroll) {
-        // 在底部向上拉：最後一塊黏住手指，上面的被拉長
         rubberDelta = currentY - maxScroll;
         const total = cachedModules.length;
         for (let i = 0; i < cachedModules.length; i++) {
@@ -370,7 +387,6 @@
           item.el.style.transform = `translate3d(0, ${staggerY}px, 0)`;
         }
       } else {
-        // 正常區域歸零
         for (let i = 0; i < cachedModules.length; i++) {
           cachedModules[i].el.style.transform = `translate3d(0, 0, 0)`;
         }
@@ -381,18 +397,14 @@
     requestAnimationFrame(physicsLoop);
 
     window.addEventListener('pointerdown', (e) => {
-      // 🌟 v1.15 手勢鎖：如果還在 loading，徹底封殺觸控，保證開機動畫不被打擾
       if (document.body.classList.contains('loading')) return; 
-      
       if (e.button !== 0 && e.pointerType === 'mouse') return;
       isDragging = true; velocity = 0;
       lastTouchY = e.clientY; lastTouchTime = Date.now();
     });
 
     window.addEventListener('pointermove', (e) => {
-      // 🌟 v1.15 手勢鎖
       if (document.body.classList.contains('loading')) return;
-      
       if (!isDragging) return;
       const y = e.clientY;
       let dy = y - lastTouchY;
